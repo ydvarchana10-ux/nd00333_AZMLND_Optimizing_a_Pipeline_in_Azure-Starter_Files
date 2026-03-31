@@ -9,6 +9,15 @@ from sklearn.preprocessing import OneHotEncoder
 import pandas as pd
 from azureml.core.run import Run
 from azureml.data.dataset_factory import TabularDatasetFactory
+from azureml.train.hyperdrive import HyperDriveConfig
+
+hyperdrive_config = HyperDriveConfig(
+    run_config=estimator,
+    hyperparameter_sampling=param_sampling,
+    primary_metric_name="accuracy",
+    primary_metric_goal="maximize",
+    max_total_runs=20
+)
 
 def clean_data(data):
     # Dict for cleaning data
@@ -55,14 +64,13 @@ def main():
     # Data is located at:
     # "https://automlsamplenotebookdata.blob.core.windows.net/automl-sample-notebook-data/bankmarketing_train.csv"
 
-    ds = ### YOUR CODE HERE ###
-    
+    ds = TabularDatasetFactory.from_delimited_files(path=data_path)    
     x, y = clean_data(ds)
 
     # TODO: Split data into train and test sets.
 
     ### YOUR CODE HERE ###a
-
+    x_train,x_test,y_train, y_test=train_test_splits(x,y,test_size=0.2,random_state=42)
     model = LogisticRegression(C=args.C, max_iter=args.max_iter).fit(x_train, y_train)
 
     accuracy = model.score(x_test, y_test)
